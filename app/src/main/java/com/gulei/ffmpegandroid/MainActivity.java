@@ -74,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
                 if (position == 0) {
                     ffmpegCut();
+                }else if (position==1){
+                    ffmpegGif();
                 }
             }
         });
@@ -85,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
         output = rootDir + "Out1.mp4";
 
         data.add("剪切视频");
+        data.add("Gif");
     }
 
     @OnClick(R.id.but_delete)
@@ -101,8 +104,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 loadingDialog.showOnUiThread();
+                deleteExitFile(output);
                 if (listener != null) {
+                    long startTime = System.currentTimeMillis();
                     listener.doAction();
+                    Log.d("FFmpegTest", "run: 耗时：" + (System.currentTimeMillis() - startTime));
                 }
                 loadingDialog.dismissOnUiThread();
             }
@@ -113,6 +119,9 @@ public class MainActivity extends AppCompatActivity {
         File file = new File(path);
         if (file.exists()) {
             file.delete();
+//            Toast.makeText(this, "删除成功", Toast.LENGTH_SHORT).show();
+        } else {
+//            Toast.makeText(this, "文件不存在", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -120,15 +129,23 @@ public class MainActivity extends AppCompatActivity {
         doOnThread(new ThreadActionListener() {
             @Override
             public void doAction() {
-                long startTime = System.currentTimeMillis();
                 //剪切视频从00：20-00：28的片段
                 String cmd = "ffmpeg -d -ss 00:00:05 -t 00:00:10 -i %s -vcodec copy -acodec copy %s";
                 cmd = String.format(cmd, input, output);
                 FFmpegUtil.run(cmd.split(" "));
-                Log.d("FFmpegTest", "run: 耗时：" + (System.currentTimeMillis() - startTime));
             }
         });
+    }
 
+    private void ffmpegGif() {
+        doOnThread(new ThreadActionListener() {
+            @Override
+            public void doAction() {
+                String cmd = "ffmpeg -i %s -vframes 30 -y -f gif %s";
+                cmd=String.format(cmd,input,rootDir+"a.gif");
+                FFmpegUtil.run(cmd.split(" "));
+            }
+        });
     }
 
 
