@@ -1,10 +1,11 @@
 package com.gulei.ffmpegandroid;
 
 /**
- * Created by gl152 on 2018/12/19.
+ * Created by gl152 on 2019/1/3.
  */
 
-public class FFmpegUtil {
+public class ApiPlayer {
+
     static {
         //虽然mk文件的name没有版本号  但是还是以复制过来的so文件文字为准
         System.loadLibrary("avutil-56");
@@ -16,13 +17,10 @@ public class FFmpegUtil {
         System.loadLibrary("avfilter-7");
         System.loadLibrary("avdevice-58");
 
-        System.loadLibrary("FFmpegUtil");
+        System.loadLibrary("ApiPlayer");
     }
 
-    public static native void run(int len, String[] cmd);
+    public static native String jnitest();
 
-    public static void run(String[] cmd) {
-        run(cmd.length, cmd);
-    }
-    
+    public static native void decodeVideo(String inputPath, String outputPath);
 }

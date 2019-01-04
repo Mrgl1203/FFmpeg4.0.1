@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.gulei.ffmpegandroid.adapter.MainRecAdapter;
@@ -74,20 +75,25 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
                 if (position == 0) {
                     ffmpegCut();
-                }else if (position==1){
+                } else if (position == 1) {
                     ffmpegGif();
+                }else if (position==2){
+                    ApiPlayer.decodeVideo(input,rootDir+"decode.yuv");
                 }
             }
         });
+
+        Toast.makeText(this, ApiPlayer.jnitest(), Toast.LENGTH_LONG).show();
     }
+
 
     private void initData() {
         rootDir = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "FFmpeg" + File.separator;
         input = rootDir + "Put1.mp4";
         output = rootDir + "Out1.mp4";
-
         data.add("剪切视频");
         data.add("Gif");
+        data.add("视频解码");
     }
 
     @OnClick(R.id.but_delete)
@@ -142,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void doAction() {
                 String cmd = "ffmpeg -i %s -vframes 30 -y -f gif %s";
-                cmd=String.format(cmd,input,rootDir+"a.gif");
+                cmd = String.format(cmd, input, rootDir + "a.gif");
                 FFmpegUtil.run(cmd.split(" "));
             }
         });

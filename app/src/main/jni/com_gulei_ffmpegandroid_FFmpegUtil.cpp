@@ -8,8 +8,12 @@
 
 extern "C" {
 #include "ffmpeg.h"
+#include <include/libavformat/avformat.h>
+#include <include/libavcodec/avcodec.h>
 }
-#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG , "ffmpeg", __VA_ARGS__)
+#define TAG "ffmpeg"
+#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG , TAG, __VA_ARGS__)
+
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_gulei_ffmpegandroid_FFmpegUtil_run
@@ -24,4 +28,7 @@ JNIEXPORT void JNICALL Java_com_gulei_ffmpegandroid_FFmpegUtil_run
         LOGD("argCmd=%s", argCmd[i]);
     }
     ffmpeg_exec(cmdLen, argCmd);
+
 };
+
+

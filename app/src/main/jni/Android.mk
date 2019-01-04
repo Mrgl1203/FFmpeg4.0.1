@@ -43,6 +43,7 @@ LOCAL_MODULE := swscale
 LOCAL_SRC_FILES := libswscale-5.so
 include $(PREBUILT_SHARED_LIBRARY)
 
+
 #myapp
 include $(CLEAR_VARS)
 LOCAL_MODULE := FFmpegUtil
@@ -57,4 +58,12 @@ LOCAL_LDLIBS := -llog
 LOCAL_SHARED_LIBRARIES := avcodec avdevice avfilter avformat avutil postproc swresample swscale
 include $(BUILD_SHARED_LIBRARY)
 
-
+#test
+include $(CLEAR_VARS)
+LOCAL_MODULE := ApiPlayer
+#需要用到的本地c头文件路径前缀
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/include
+LOCAL_SRC_FILES := com_gulei_ffmpegandroid_ApiPlayer.c
+LOCAL_LDLIBS := -llog
+LOCAL_SHARED_LIBRARIES := avcodec avdevice avfilter avformat avutil postproc swresample swscale
+include $(BUILD_SHARED_LIBRARY)
