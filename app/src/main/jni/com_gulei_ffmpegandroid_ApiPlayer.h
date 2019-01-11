@@ -23,6 +23,18 @@ JNIEXPORT jstring JNICALL Java_com_gulei_ffmpegandroid_ApiPlayer_jnitest
 JNIEXPORT void JNICALL Java_com_gulei_ffmpegandroid_ApiPlayer_decodeVideo
   (JNIEnv *, jclass, jstring, jstring);
 
+/*
+ * Class:     com_gulei_ffmpegandroid_ApiPlayer
+ * Method:    decodeVideo2
+ * Signature: (Ljava/lang/String;Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_com_gulei_ffmpegandroid_ApiPlayer_decodeVideo2
+  (JNIEnv *, jclass, jstring, jstring);
+
+
+JNIEXPORT void JNICALL Java_com_gulei_ffmpegandroid_ApiPlayer_render
+        (JNIEnv *, jclass, jstring, jobject);
+
 #ifdef __cplusplus
 }
 #endif

@@ -1,5 +1,7 @@
 package com.gulei.ffmpegandroid;
 
+import android.view.Surface;
+
 /**
  * Created by gl152 on 2019/1/3.
  */
@@ -23,4 +25,8 @@ public class ApiPlayer {
     public static native String jnitest();
 
     public static native void decodeVideo(String inputPath, String outputPath);
+
+    public static native void decodeVideo2(String inputPath, String outputPath);
+
+    public  native void render(String input, Surface surface);
 }

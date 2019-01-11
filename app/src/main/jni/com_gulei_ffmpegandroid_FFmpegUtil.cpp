@@ -8,8 +8,8 @@
 
 extern "C" {
 #include "ffmpeg.h"
-#include <include/libavformat/avformat.h>
-#include <include/libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
 }
 #define TAG "ffmpeg"
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG , TAG, __VA_ARGS__)

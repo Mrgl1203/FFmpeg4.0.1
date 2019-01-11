@@ -1,6 +1,7 @@
 package com.gulei.ffmpegandroid;
 
 import android.Manifest;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
@@ -8,11 +9,10 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.gulei.ffmpegandroid.activity.RenderActivity;
 import com.gulei.ffmpegandroid.adapter.MainRecAdapter;
 import com.gulei.ffmpegandroid.dialog.LoadingDialog;
 import com.yanzhenjie.permission.Action;
@@ -26,13 +26,8 @@ import java.util.concurrent.Executors;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
-    @BindView(R.id.but_delete)
-    Button butDelete;
-    @BindView(R.id.lineatTop)
-    LinearLayout lineatTop;
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
     MainRecAdapter adapter;
@@ -74,11 +69,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
                 if (position == 0) {
-                    ffmpegCut();
+                    ffmpegCut(input, output);
                 } else if (position == 1) {
-                    ffmpegGif();
-                }else if (position==2){
-                    ApiPlayer.decodeVideo(input,rootDir+"decode.yuv");
+                    ffmpegGif(input, rootDir + "a.gif");
+                } else if (position == 2) {
+                    ApiPlayer.decodeVideo(input, rootDir + "decode.yuv");
+                } else if (position == 3) {
+                    ApiPlayer.decodeVideo2(input, rootDir + "decode2.yuv");
+                } else if (position == 4) {
+                    Intent intent = new Intent(MainActivity.this, RenderActivity.class);
+                    intent.putExtra(Constant.VIDEOPATH, input);
+                    startActivity(intent);
                 }
             }
         });
@@ -94,12 +95,10 @@ public class MainActivity extends AppCompatActivity {
         data.add("剪切视频");
         data.add("Gif");
         data.add("视频解码");
+        data.add("视频解码2:新api");
+        data.add("视频Native原生绘制");
     }
 
-    @OnClick(R.id.but_delete)
-    public void onViewClicked() {
-        deleteExitFile(output);
-    }
 
     public interface ThreadActionListener {
         void doAction();
@@ -110,7 +109,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 loadingDialog.showOnUiThread();
-                deleteExitFile(output);
                 if (listener != null) {
                     long startTime = System.currentTimeMillis();
                     listener.doAction();
@@ -131,24 +129,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void ffmpegCut() {
+    private void ffmpegCut(final String in, final String out) {
+        deleteExitFile(out);
         doOnThread(new ThreadActionListener() {
             @Override
             public void doAction() {
                 //剪切视频从00：20-00：28的片段
                 String cmd = "ffmpeg -d -ss 00:00:05 -t 00:00:10 -i %s -vcodec copy -acodec copy %s";
-                cmd = String.format(cmd, input, output);
+                cmd = String.format(cmd, in, out);
                 FFmpegUtil.run(cmd.split(" "));
             }
         });
     }
 
-    private void ffmpegGif() {
+    private void ffmpegGif(final String in, final String out) {
         doOnThread(new ThreadActionListener() {
             @Override
             public void doAction() {
                 String cmd = "ffmpeg -i %s -vframes 30 -y -f gif %s";
-                cmd = String.format(cmd, input, rootDir + "a.gif");
+                cmd = String.format(cmd, in, out);
                 FFmpegUtil.run(cmd.split(" "));
             }
         });
