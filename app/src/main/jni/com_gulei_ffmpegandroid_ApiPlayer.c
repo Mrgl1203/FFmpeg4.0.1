@@ -229,8 +229,8 @@ JNIEXPORT void JNICALL Java_com_gulei_ffmpegandroid_ApiPlayer_decodeVideo2
     AVPacket *avPacket = (AVPacket *) av_malloc(sizeof(AVPacket));
 
     //解码后的像素数据容器,av_frame_alloc没有为data像素数据分配空间，后续还需要自行为data开辟内存空间
-    AVFrame *avFrame = av_frame_alloc();
-    AVFrame *yuvFrame = av_frame_alloc();
+    AVFrame *avFrame = av_frame_alloc();//该avFrame用于存放视频解码后的数据，所以它的data缓冲区由avcodec_decode_video2分配
+    AVFrame *yuvFrame = av_frame_alloc();//用来存放将解码出来的原始数据变换为需要的数据格式（例如RGB，RGBA）的数据，这个AVFrame需要手动的分配数据缓存空间
 
     //只有指定了AVFrame的像素格式、画面大小才能真正分配内存
     //缓冲区分配内存
@@ -356,6 +356,7 @@ JNIEXPORT void JNICALL Java_com_gulei_ffmpegandroid_ApiPlayer_render
     AVFrame *yuvFrame = av_frame_alloc();
     AVFrame *rgb_frame = av_frame_alloc();
     int gotPicture, ret;
+    int frame_count = 0;
     ANativeWindow *aNativeWindow = ANativeWindow_fromSurface(env, surface);
     ANativeWindow_Buffer aNativeWindow_buffer;
     while (av_read_frame(avFormatContext, avPacket) >= 0) {
@@ -367,15 +368,18 @@ JNIEXPORT void JNICALL Java_com_gulei_ffmpegandroid_ApiPlayer_render
             }
 
             if (gotPicture) {
+
                 //设置缓冲区的属性（宽、高、像素格式）
-                ANativeWindow_setBuffersGeometry(aNativeWindow, yuvFrame->width, yuvFrame->height,
+                ANativeWindow_setBuffersGeometry(aNativeWindow, avCodecContext->width,
+                                                 avCodecContext->height,
                                                  WINDOW_FORMAT_RGBA_8888);
                 //lock
                 ANativeWindow_lock(aNativeWindow, &aNativeWindow_buffer, NULL);
-                av_image_fill_arrays(rgb_frame->data, yuvFrame->linesize, aNativeWindow_buffer.bits,
-                                     AV_PIX_FMT_YUV420P,
+                //对申请的内存进行格式化，将out_buffer指向data,并且像素存储类型格式化为AV_PIX_FMT_RGBA
+                av_image_fill_arrays(rgb_frame->data, rgb_frame->linesize,
+                                     aNativeWindow_buffer.bits,
+                                     AV_PIX_FMT_RGBA,
                                      avCodecContext->width, avCodecContext->height, 1);
-
                 //YUV->RGBA_8888
                 I420ToARGB(yuvFrame->data[0], yuvFrame->linesize[0],
                            yuvFrame->data[2], yuvFrame->linesize[2],
@@ -384,6 +388,8 @@ JNIEXPORT void JNICALL Java_com_gulei_ffmpegandroid_ApiPlayer_render
                            avCodecContext->width, avCodecContext->height);
                 //unlock
                 ANativeWindow_unlockAndPost(aNativeWindow);
+                frame_count++;
+                LOGI("解码第%d帧", frame_count);
 
                 usleep(1000 * 16);
             }
@@ -395,4 +401,5 @@ JNIEXPORT void JNICALL Java_com_gulei_ffmpegandroid_ApiPlayer_render
     avcodec_free_context(&avCodecContext);
     av_frame_free(&yuvFrame);
     av_frame_free(&rgb_frame);
+    (*env)->ReleaseStringUTFChars(env, input_jstr, input_cstr);
 };
