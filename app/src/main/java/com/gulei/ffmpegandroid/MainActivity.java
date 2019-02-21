@@ -45,7 +45,10 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         AndPermission.with(this)
                 .runtime()
-                .permission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .permission(new String[]{
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.CAMERA,
+                        Manifest.permission.RECORD_AUDIO})
                 .onGranted(new Action<List<String>>() {
                     @Override
                     public void onAction(List<String> data) {
